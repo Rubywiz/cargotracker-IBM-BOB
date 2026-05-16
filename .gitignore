@@ -16,3 +16,7 @@ data
 cargo-tracker-test-data
 nbactions.xml
 .java-version
+node_modules/
+dashboard/node_modules/
+risk-engine/node_modules/
+dashboard/dist/
