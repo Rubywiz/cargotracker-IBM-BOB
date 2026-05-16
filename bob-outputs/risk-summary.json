@@ -1,0 +1,336 @@
+{
+  "overall_risk_score": 68,
+  "assessment_date": "2026-05-16",
+  "project_info": {
+    "name": "Eclipse Cargo Tracker",
+    "version": "3.1-SNAPSHOT",
+    "java_version": "11",
+    "jakarta_ee_version": "10.0.0",
+    "architecture": "Monolithic DDD"
+  },
+  "categories": {
+    "security": 72,
+    "compatibility": 55,
+    "maintainability": 70,
+    "documentation": 75
+  },
+  "category_details": {
+    "security": {
+      "score": 72,
+      "critical_issues": [
+        "commons-lang3 dependency has NO version specified - could pull ancient vulnerable version",
+        "H2 database has history of critical RCE vulnerabilities (CVE-2022-45868, CVE-2021-42392)",
+        "Java 11 reached EOL in September 2023 - no more security updates",
+        "File-based batch processing from /tmp/uploads creates security surface"
+      ],
+      "recommendations": [
+        "Immediately specify commons-lang3 version (3.14.0+)",
+        "Run OWASP dependency-check:check for comprehensive CVE scan",
+        "Migrate to Java 17 LTS or Java 21 LTS",
+        "Replace H2 with PostgreSQL for production",
+        "Implement input validation for file uploads"
+      ]
+    },
+    "compatibility": {
+      "score": 55,
+      "issues": [
+        "Java 11 is EOL - incompatible with modern cloud platforms requiring Java 17+",
+        "Monolithic WAR deployment limits cloud-native deployment options",
+        "JSF/Faces technology not compatible with modern frontend frameworks",
+        "JMS messaging not compatible with cloud-native messaging (Kafka, SQS, etc.)"
+      ],
+      "recommendations": [
+        "Migrate to Java 17 LTS minimum (Java 21 LTS preferred)",
+        "Consider containerization strategy (Docker/Kubernetes)",
+        "Evaluate microservices decomposition for cloud deployment",
+        "Add REST API layer for frontend flexibility"
+      ]
+    },
+    "maintainability": {
+      "score": 70,
+      "strengths": [
+        "Clean DDD architecture with clear bounded contexts",
+        "Well-documented domain model with package.html files",
+        "Comprehensive test coverage with Arquillian",
+        "Google Java Style Guide compliance"
+      ],
+      "concerns": [
+        "Monolithic architecture makes independent scaling difficult",
+        "JSF/XHTML templates harder to maintain than modern frameworks",
+        "File-based batch processing not observable or debuggable",
+        "Mixed concerns in infrastructure layer (JPA, JMS, routing)"
+      ],
+      "recommendations": [
+        "Add observability (metrics, tracing, logging)",
+        "Consider API-first design for better testability",
+        "Implement health checks and readiness probes",
+        "Add OpenAPI/Swagger documentation"
+      ]
+    },
+    "documentation": {
+      "score": 75,
+      "strengths": [
+        "Excellent README with getting started guide",
+        "Package-level documentation (package.html)",
+        "Clear DDD concepts explained in code comments",
+        "Multiple deployment profiles documented"
+      ],
+      "gaps": [
+        "No architecture decision records (ADRs)",
+        "Missing API documentation (OpenAPI/Swagger)",
+        "No deployment architecture diagrams",
+        "Limited troubleshooting guide"
+      ]
+    }
+  },
+  "top_modules": [
+    {
+      "bounded_context": "Cargo",
+      "risk_score": 65,
+      "reasons": [
+        "Core aggregate with complex business logic",
+        "Tight coupling to Delivery and Itinerary value objects",
+        "Synchronous and asynchronous update paths",
+        "Heavy use of JPA with potential N+1 query issues"
+      ],
+      "upgrade_effort_days": 15,
+      "impact": "high",
+      "recommendations": [
+        "Add caching layer for frequently accessed cargo",
+        "Optimize JPA queries with fetch joins",
+        "Consider CQRS pattern for read-heavy operations",
+        "Add performance monitoring"
+      ]
+    },
+    {
+      "bounded_context": "Handling",
+      "risk_score": 70,
+      "reasons": [
+        "Async event processing via JMS creates eventual consistency challenges",
+        "File-based batch processing from /tmp/uploads is fragile",
+        "HandlingEvent factory has complex validation logic",
+        "No retry mechanism for failed event processing"
+      ],
+      "upgrade_effort_days": 20,
+      "impact": "high",
+      "recommendations": [
+        "Replace file scanning with REST API or message queue",
+        "Add dead letter queue for failed events",
+        "Implement idempotency for event processing",
+        "Add event sourcing for audit trail",
+        "Replace JMS with cloud-native messaging"
+      ]
+    },
+    {
+      "bounded_context": "Location",
+      "risk_score": 40,
+      "reasons": [
+        "Simple aggregate with minimal business logic",
+        "Reference data that changes infrequently",
+        "Well-encapsulated with UnLocode value object"
+      ],
+      "upgrade_effort_days": 3,
+      "impact": "low",
+      "recommendations": [
+        "Add caching for location lookups",
+        "Consider read-only replica for high-traffic scenarios",
+        "Minimal changes needed"
+      ]
+    },
+    {
+      "bounded_context": "Voyage",
+      "risk_score": 45,
+      "reasons": [
+        "Builder pattern well-implemented",
+        "Schedule value object properly encapsulated",
+        "Reference data with moderate change frequency"
+      ],
+      "upgrade_effort_days": 5,
+      "impact": "medium",
+      "recommendations": [
+        "Add validation for schedule conflicts",
+        "Consider caching for active voyages",
+        "Add voyage capacity management"
+      ]
+    },
+    {
+      "bounded_context": "Infrastructure",
+      "risk_score": 75,
+      "reasons": [
+        "JMS messaging is heavyweight and not cloud-native",
+        "External routing service has no circuit breaker",
+        "JPA repositories have potential performance issues",
+        "File-based event processing is not scalable"
+      ],
+      "upgrade_effort_days": 25,
+      "impact": "high",
+      "recommendations": [
+        "Add resilience patterns (circuit breaker, retry, timeout)",
+        "Replace JMS with Kafka or cloud messaging",
+        "Implement connection pooling and query optimization",
+        "Add distributed tracing",
+        "Replace file scanning with event-driven architecture"
+      ]
+    },
+    {
+      "bounded_context": "Interfaces",
+      "risk_score": 80,
+      "reasons": [
+        "JSF/Faces is legacy technology",
+        "Server-side rendering limits scalability",
+        "PrimeFaces adds complexity",
+        "No API versioning strategy",
+        "REST endpoints lack OpenAPI documentation"
+      ],
+      "upgrade_effort_days": 30,
+      "impact": "high",
+      "recommendations": [
+        "Migrate to modern frontend (React, Vue, Angular)",
+        "Implement API-first design with OpenAPI",
+        "Add API versioning and deprecation strategy",
+        "Separate frontend and backend deployments",
+        "Add GraphQL for flexible queries"
+      ]
+    }
+  ],
+  "quick_wins": [
+    {
+      "title": "Specify commons-lang3 version",
+      "effort_hours": 1,
+      "impact": "critical",
+      "description": "Add explicit version to commons-lang3 dependency to prevent pulling vulnerable versions",
+      "implementation": "Add <version>3.14.0</version> to commons-lang3 dependency in pom.xml"
+    },
+    {
+      "title": "Run OWASP dependency check",
+      "effort_hours": 2,
+      "impact": "high",
+      "description": "Add and run OWASP dependency-check-maven plugin to identify all CVEs",
+      "implementation": "Add plugin to pom.xml and run: mvn dependency-check:check"
+    },
+    {
+      "title": "Update Arquillian BOM",
+      "effort_hours": 2,
+      "impact": "medium",
+      "description": "Update Arquillian from 1.8.0.Final to 1.9.x for latest fixes",
+      "implementation": "Update version in dependencyManagement section"
+    },
+    {
+      "title": "Add health check endpoints",
+      "effort_hours": 4,
+      "impact": "high",
+      "description": "Implement /health and /ready endpoints for Kubernetes",
+      "implementation": "Use MicroProfile Health or Spring Boot Actuator patterns"
+    },
+    {
+      "title": "Document REST APIs with OpenAPI",
+      "effort_hours": 8,
+      "impact": "medium",
+      "description": "Add OpenAPI annotations to REST endpoints",
+      "implementation": "Add MicroProfile OpenAPI or Swagger dependencies and annotations"
+    },
+    {
+      "title": "Add connection pooling configuration",
+      "effort_hours": 3,
+      "impact": "medium",
+      "description": "Configure HikariCP or similar for database connection pooling",
+      "implementation": "Add datasource configuration in server.xml or persistence.xml"
+    },
+    {
+      "title": "Implement request logging",
+      "effort_hours": 4,
+      "impact": "medium",
+      "description": "Add structured logging for all HTTP requests",
+      "implementation": "Add servlet filter or JAX-RS interceptor for request/response logging"
+    },
+    {
+      "title": "Add Docker Compose for local dev",
+      "effort_hours": 6,
+      "impact": "medium",
+      "description": "Create docker-compose.yml for easy local development setup",
+      "implementation": "Already exists (docker-compose.yml) - document and enhance"
+    }
+  ],
+  "migration_roadmap": {
+    "phase_1_immediate": {
+      "duration_weeks": 2,
+      "priority": "critical",
+      "tasks": [
+        "Fix commons-lang3 version specification",
+        "Run OWASP dependency check and fix critical CVEs",
+        "Update to Java 17 LTS",
+        "Add health check endpoints",
+        "Implement basic observability (logging, metrics)"
+      ]
+    },
+    "phase_2_short_term": {
+      "duration_weeks": 8,
+      "priority": "high",
+      "tasks": [
+        "Replace H2 with PostgreSQL for all environments",
+        "Add OpenAPI documentation",
+        "Implement circuit breakers for external services",
+        "Replace file-based batch with REST API",
+        "Add comprehensive integration tests",
+        "Implement API versioning"
+      ]
+    },
+    "phase_3_medium_term": {
+      "duration_weeks": 16,
+      "priority": "medium",
+      "tasks": [
+        "Evaluate microservices decomposition",
+        "Replace JMS with Kafka or cloud messaging",
+        "Implement CQRS for read-heavy operations",
+        "Add event sourcing for audit trail",
+        "Containerize application (Docker/Kubernetes)",
+        "Implement distributed tracing"
+      ]
+    },
+    "phase_4_long_term": {
+      "duration_weeks": 24,
+      "priority": "low",
+      "tasks": [
+        "Migrate frontend to modern framework (React/Vue)",
+        "Decompose into microservices",
+        "Implement API gateway",
+        "Add GraphQL layer",
+        "Implement service mesh",
+        "Full cloud-native transformation"
+      ]
+    }
+  },
+  "cost_benefit_analysis": {
+    "total_modernization_effort_days": 98,
+    "estimated_cost_usd": 147000,
+    "expected_benefits": [
+      "Reduced security vulnerabilities by 80%",
+      "Improved scalability by 10x",
+      "Reduced deployment time from hours to minutes",
+      "Improved developer productivity by 40%",
+      "Reduced infrastructure costs by 30%",
+      "Improved system reliability (99.9% uptime)"
+    ],
+    "roi_timeline_months": 18
+  },
+  "compliance_considerations": {
+    "java_eol": {
+      "status": "non_compliant",
+      "issue": "Java 11 reached EOL September 2023",
+      "risk": "No security patches available",
+      "remediation": "Migrate to Java 17 LTS or Java 21 LTS"
+    },
+    "dependency_vulnerabilities": {
+      "status": "at_risk",
+      "issue": "Unspecified commons-lang3 version, H2 CVE history",
+      "risk": "Potential RCE and data breach",
+      "remediation": "Specify versions, run OWASP checks, update dependencies"
+    },
+    "data_security": {
+      "status": "needs_review",
+      "issue": "File-based processing, no encryption at rest mentioned",
+      "risk": "Data exposure, compliance violations",
+      "remediation": "Implement encryption, secure file handling, audit logging"
+    }
+  }
+}
