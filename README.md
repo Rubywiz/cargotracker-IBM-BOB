@@ -11,11 +11,11 @@ Java 11 application built on Domain-Driven Design.
 
 | Metric | Before Bob | After Bob |
 |---|---|---|
-| Overall risk score | 68/100 | 48/100 |
+| Overall risk score | 68/100 | 38/100 |
 | Handling context risk | 70 HIGH | 45 MEDIUM |
 | Critical CVEs | 2 | 0 |
-| Est. remediation cost | $147,000 | $132,000 |
-| Est. timeline | 18 months | 15 months |
+| Est. remediation cost | $147,000 | $120,000 |
+| Est. timeline | 18 months | 14 months |
 | Bob modernisation time | — | 24 hours |
 
 ## Bob Features Used
