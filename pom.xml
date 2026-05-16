@@ -61,6 +61,13 @@
       <version>${jakartaee.api.version}</version>
       <scope>provided</scope>
     </dependency>
+    <!-- MicroProfile Health API for cloud-native health monitoring -->
+    <dependency>
+      <groupId>org.eclipse.microprofile.health</groupId>
+      <artifactId>microprofile-health-api</artifactId>
+      <version>4.0</version>
+      <scope>provided</scope>
+    </dependency>
     <!-- The third-party dependencies this application has -->
     <dependency>
       <groupId>org.apache.commons</groupId>
