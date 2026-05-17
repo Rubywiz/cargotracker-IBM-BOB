@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
 
-const API_BASE_URL = '';
+const API_BASE_URL = 'https://cargotracker-ibm-bob.onrender.com';
 
 export function useApi(endpoint) {
   const [data, setData] = useState(null);
