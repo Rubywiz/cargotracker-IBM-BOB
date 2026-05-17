@@ -1,3 +1,4 @@
+import { API_BASE_URL } from '../hooks/useApi';
 import React, { useState, useEffect } from 'react';
 import { getRiskBorderColor, getImpactLabel } from '../utils/helpers';
 
@@ -13,7 +14,7 @@ function BoundedContextMap({ viewMode }) {
       setError(null);
       try {
         const endpoint = viewMode === 'before' ? '/api/recommendations' : '/api/recommendations-after';
-        const response = await fetch(`${endpoint}`);
+        const response = await fetch(`${API_BASE_URL}${endpoint}`);
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
         }
