@@ -1,3 +1,4 @@
+import { API_BASE_URL } from '../hooks/useApi';
 import React, { useState, useEffect } from 'react';
 import { RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar, ResponsiveContainer } from 'recharts';
 import { getGaugeColor, getGaugeLabel } from '../utils/helpers';
@@ -14,7 +15,7 @@ function Overview({ viewMode, setViewMode }) {
       setError(null);
       try {
         const endpoint = viewMode === 'before' ? '/api/summary' : '/api/summary-after';
-        const response = await fetch(`${endpoint}`);
+        const response = await fetch(`${API_BASE_URL}${endpoint}`);≈
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
         }
