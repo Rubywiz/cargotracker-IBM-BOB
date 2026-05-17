@@ -1,10 +1,42 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar, ResponsiveContainer } from 'recharts';
-import { useApi } from '../hooks/useApi';
 import { getGaugeColor, getGaugeLabel } from '../utils/helpers';
 
-function Overview() {
-  const { data: stats, loading, error } = useApi('/api/stats');
+function Overview({ viewMode, setViewMode }) {
+  const [stats, setStats] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  // Fetch data based on viewMode
+  useEffect(() => {
+    const fetchData = async () => {
+      setLoading(true);
+      setError(null);
+      try {
+        const endpoint = viewMode === 'before' ? '/api/summary' : '/api/summary-after';
+        const response = await fetch(`http://localhost:3000${endpoint}`);
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const data = await response.json();
+        
+        // Transform data to match stats format
+        const transformedStats = {
+          overall_risk_score: data.overall_risk_score,
+          categories: data.categories,
+          assessment_date: data.assessment_date
+        };
+        
+        setStats(transformedStats);
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, [viewMode]);
 
   if (loading) {
     return (
@@ -48,6 +80,35 @@ function Overview() {
 
   return (
     <div className="space-y-6">
+      {/* Toggle Buttons */}
+      <div className="flex items-center gap-4 mb-6">
+        <button
+          className={`px-4 py-2 border font-mono text-sm transition-colors ${
+            viewMode === 'before'
+              ? 'bg-red-500/10 border-red-500 text-red-400'
+              : 'bg-surface-dark border-border-dark text-text-secondary hover:border-accent-amber'
+          }`}
+          onClick={() => setViewMode('before')}
+        >
+          BEFORE MODERNISATION
+        </button>
+        <button
+          className={`px-4 py-2 border font-mono text-sm transition-colors ${
+            viewMode === 'after'
+              ? 'bg-green-500/10 border-green-500 text-green-400'
+              : 'bg-surface-dark border-border-dark text-text-secondary hover:border-accent-amber'
+          }`}
+          onClick={() => setViewMode('after')}
+        >
+          AFTER MODERNISATION
+        </button>
+        {stats?.assessment_date && (
+          <div className="ml-auto text-sm text-text-tertiary dark:text-text-tertiary light:text-light-text-secondary font-mono">
+            Assessment: {stats.assessment_date}
+          </div>
+        )}
+      </div>
+
       {/* Two Column Layout */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Left Panel: Risk Score */}

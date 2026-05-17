@@ -79,6 +79,7 @@ const sampleDependencies = [
 
 // Load data on startup
 let riskSummary = loadJsonFile('risk-summary.json', sampleRiskSummary);
+let riskSummaryAfter = loadJsonFile('risk-summary-after.json', sampleRiskSummary);
 let dependencies = loadJsonFile('dependency-map.json', sampleDependencies);
 
 // Routes
@@ -99,6 +100,11 @@ app.get('/api/summary', (req, res) => {
   res.json(riskSummary);
 });
 
+// Get complete risk summary (after modernization)
+app.get('/api/summary-after', (req, res) => {
+  res.json(riskSummaryAfter);
+});
+
 // Get all dependencies
 app.get('/api/dependencies', (req, res) => {
   res.json(dependencies);
@@ -113,11 +119,33 @@ app.get('/api/recommendations', (req, res) => {
     total_modules: sortedModules.length,
     recommendations: sortedModules.map(module => ({
       ...module,
-      priority: module.risk_score >= 75 ? 'critical' : 
-                module.risk_score >= 60 ? 'high' : 
+      priority: module.risk_score >= 75 ? 'critical' :
+                module.risk_score >= 60 ? 'high' :
                 module.risk_score >= 40 ? 'medium' : 'low'
     }))
   });
+});
+
+// Get recommendations (after modernization)
+app.get('/api/recommendations-after', (req, res) => {
+  const topModules = riskSummaryAfter.top_modules || [];
+  const sortedModules = [...topModules].sort((a, b) => b.risk_score - a.risk_score);
+  
+  res.json({
+    total_modules: sortedModules.length,
+    recommendations: sortedModules.map(module => ({
+      ...module,
+      priority: module.risk_score >= 75 ? 'critical' :
+                module.risk_score >= 60 ? 'high' :
+                module.risk_score >= 40 ? 'medium' : 'low'
+    }))
+  });
+});
+
+// Get modules (after modernization) - for BoundedContextMap
+app.get('/api/modules-after', (req, res) => {
+  const topModules = riskSummaryAfter.top_modules || [];
+  res.json(topModules);
 });
 
 // Get quick wins
@@ -187,6 +215,7 @@ app.get('/api/stats', (req, res) => {
 app.post('/api/reload', (req, res) => {
   try {
     riskSummary = loadJsonFile('risk-summary.json', sampleRiskSummary);
+    riskSummaryAfter = loadJsonFile('risk-summary-after.json', sampleRiskSummary);
     dependencies = loadJsonFile('dependency-map.json', sampleDependencies);
     res.json({
       success: true,
@@ -209,8 +238,11 @@ app.use((req, res) => {
     available_endpoints: [
       'GET /health',
       'GET /api/summary',
+      'GET /api/summary-after',
       'GET /api/dependencies',
       'GET /api/recommendations',
+      'GET /api/recommendations-after',
+      'GET /api/modules-after',
       'GET /api/quick-wins',
       'GET /api/dependencies/by-risk/:level',
       'GET /api/stats',
@@ -236,8 +268,11 @@ app.listen(PORT, () => {
   console.log(`\nAvailable endpoints:`);
   console.log(`  GET  /health`);
   console.log(`  GET  /api/summary`);
+  console.log(`  GET  /api/summary-after`);
   console.log(`  GET  /api/dependencies`);
   console.log(`  GET  /api/recommendations`);
+  console.log(`  GET  /api/recommendations-after`);
+  console.log(`  GET  /api/modules-after`);
   console.log(`  GET  /api/quick-wins`);
   console.log(`  GET  /api/dependencies/by-risk/:level`);
   console.log(`  GET  /api/stats`);

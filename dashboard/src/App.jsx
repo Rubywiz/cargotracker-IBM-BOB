@@ -16,6 +16,9 @@ function App() {
     return saved ? saved === 'dark' : true; // Default to dark
   });
 
+  // View mode state - 'before' or 'after' modernization
+  const [viewMode, setViewMode] = useState('before');
+
   // Apply dark mode class to document element
   useEffect(() => {
     const root = document.documentElement;
@@ -41,8 +44,8 @@ function App() {
       
       <main className="max-w-7xl mx-auto px-6 py-8">
         <div className="space-y-6">
-          <Overview />
-          <BoundedContextMap />
+          <Overview viewMode={viewMode} setViewMode={setViewMode} />
+          <BoundedContextMap viewMode={viewMode} />
           <DependencyRisk />
           <QuickWins />
           <BobShell />

@@ -1,9 +1,33 @@
-import React from 'react';
-import { useApi } from '../hooks/useApi';
+import React, { useState, useEffect } from 'react';
 import { getRiskBorderColor, getImpactLabel } from '../utils/helpers';
 
-function BoundedContextMap() {
-  const { data, loading, error } = useApi('/api/recommendations');
+function BoundedContextMap({ viewMode }) {
+  const [data, setData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  // Fetch data based on viewMode
+  useEffect(() => {
+    const fetchData = async () => {
+      setLoading(true);
+      setError(null);
+      try {
+        const endpoint = viewMode === 'before' ? '/api/recommendations' : '/api/recommendations-after';
+        const response = await fetch(`http://localhost:3000${endpoint}`);
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const result = await response.json();
+        setData(result);
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, [viewMode]);
 
   if (loading) {
     return (
@@ -57,15 +81,36 @@ function BoundedContextMap() {
               style={{ borderLeftColor: borderColor }}
             >
               {/* Module Name */}
-              <h3 className="text-base font-semibold text-text-primary dark:text-text-primary light:text-light-text mb-3">
-                {module.bounded_context}
-              </h3>
+              <div className="flex items-center justify-between mb-3">
+                <h3 className="text-base font-semibold text-text-primary dark:text-text-primary light:text-light-text">
+                  {module.bounded_context}
+                </h3>
+                {viewMode === 'after' && module.bounded_context === 'Handling' && (
+                  <span className="px-2 py-0.5 bg-green-500/10 border border-green-500 text-green-400 text-xs font-mono">
+                    MODERNISED
+                  </span>
+                )}
+              </div>
               
               {/* Risk Score - Large monospace amber */}
               <div className="flex items-baseline gap-2 mb-3">
-                <div className="font-mono text-4xl font-bold text-data-primary">
-                  {module.risk_score}
-                </div>
+                {viewMode === 'after' && module.bounded_context === 'Handling' && module.previous_risk_score ? (
+                  <>
+                    <div className="font-mono text-4xl font-bold line-through text-text-tertiary dark:text-text-tertiary light:text-light-text-secondary opacity-50">
+                      {module.previous_risk_score}
+                    </div>
+                    <div className="text-2xl text-text-tertiary dark:text-text-tertiary light:text-light-text-secondary mx-2">
+                      →
+                    </div>
+                    <div className="font-mono text-4xl font-bold text-green-400">
+                      {module.risk_score}
+                    </div>
+                  </>
+                ) : (
+                  <div className="font-mono text-4xl font-bold text-data-primary">
+                    {module.risk_score}
+                  </div>
+                )}
                 <div className="text-sm text-text-tertiary dark:text-text-tertiary light:text-light-text-secondary">
                   / 100
                 </div>
