@@ -15,7 +15,7 @@ function Overview({ viewMode, setViewMode }) {
       setError(null);
       try {
         const endpoint = viewMode === 'before' ? '/api/summary' : '/api/summary-after';
-        const response = await fetch(`${API_BASE_URL}${endpoint}`);≈
+        const response = await fetch(`${API_BASE_URL}${endpoint}`);
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
         }

@@ -1,3 +1,4 @@
+import { API_BASE_URL } from '../hooks/useApi';
 import React, { useState, useEffect, useRef } from 'react';
 
 // Simple Terminal SVG icon (no external dependencies)
@@ -16,7 +17,7 @@ function BobShell() {
 
   useEffect(() => {
     // Fetch the audit log file
-    fetch('/bob-outputs/bobshell-audit.log')
+    fetch(`${API_BASE_URL}/bob-outputs/bobshell-audit.log`)
       .then(response => {
         if (!response.ok) {
           throw new Error('Log file not found');
